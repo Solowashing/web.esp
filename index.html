@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>ESP32 Signal Monitor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      text-align: center;
+      padding: 50px;
+    }
+    #status {
+      font-size: 3em;
+      color: #444;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>ESP32 Status Monitor</h1>
+  <div id="status">Checking for signal...</div>
+
+  <script>
+    async function fetchStatus() {
+      try {
+        const res = await fetch("status.txt?" + new Date().getTime()); // prevent caching
+        const text = await res.text();
+        const now = new Date();
+        const [timestamp, value] = text.trim().split(",");
+        const lastUpdate = new Date(Number(timestamp));
+        const secondsAgo = (now - lastUpdate) / 1000;
+
+        if (secondsAgo > 10) {
+          document.getElementById("status").textContent = "No signal";
+        } else {
+          document.getElementById("status").textContent = "Signal: " + value;
+        }
+      } catch (e) {
+        document.getElementById("status").textContent = "Error fetching signal";
+      }
+    }
+
+    setInterval(fetchStatus, 3000); // check every 3 seconds
+    fetchStatus(); // first load
+  </script>
+</body>
+</html>
